@@ -1,0 +1,52 @@
+experiment: classification_lego     # used to create experiment folder
+
+data:                                 # ------ DATASET ------------------
+  data_path_real : ./Data/lego/real
+  data_path_synth: ./Data/lego/synth
+  image_size     : [256, 256, 3]
+  num_classes    : 134                
+
+compile:                              # ------ GLOBAL COMPILE PARAMS ----
+  metrics  : [accuracy, precision, recall, f1-score, top-3, top-5]
+  loss     : categorical_crossentropy
+  optimizer: sgd
+  lr       : 0.01                                
+
+models:                               # ------ ARCHITECTURES ------------
+  cnn:
+    layers:
+      - {type: conv2d, filters: 32, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: conv2d, filters: 32, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: maxpooling2d, pool_size: [2, 2], strides: [2, 2], padding: valid}
+      - {type: conv2d, filters: 64, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: conv2d, filters: 64, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: maxpooling2d, pool_size: [2, 2], strides: [2, 2], padding: valid}
+      - {type: conv2d, filters: 64, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: conv2d, filters: 64, kernel_size: [3, 3], strides: [1, 1], padding: same, activation: relu}
+      - {type: maxpooling2d, pool_size: [2, 2], strides: [2, 2], padding: valid}
+      - {type: flatten}
+      - {type: dense, units: 128, activation: relu}
+      - {type: dense, units: 128, activation: relu}
+      - {type: dense, units: x, activation: softmax}
+
+  mlp:
+    layers:
+      - {type: flatten}
+      - {type: dense, units: 512, activation: relu}
+      - {type: dense, units: 512, activation: relu}
+      - {type: dense, units: 256, activation: relu}
+      - {type: dense, units: 256, activation: relu}
+      - {type: dense, units: x,  activation: softmax}
+
+  vit:
+    patch_size        : 32
+    projection_dim    : 64
+    num_heads         : 12
+    transformer_layers: 8
+    mlp_head_units    : [512, 256]
+
+training:                             # ------ TRAINING -----------------
+  num_epochs: 100
+  batch_size: 64
+  settings  : [simple_mixed, fine-tuned]
+  patience  : 10
